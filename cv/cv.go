@@ -146,104 +146,123 @@ const (
 	KEY_SYM            = C.CVK_SYM
 	KEY_MAX            = C.CVK_MAX
 
-	ON_INIT    = C.CVE_INIT
-	ON_TERM    = C.CVE_TERM
-	ON_GLINIT  = C.CVE_GLINIT
-	ON_GLTERM  = C.CVE_GLTERM
-	ON_DOWN    = C.CVE_DOWN
-	ON_UP      = C.CVE_UP
-	ON_UNICODE = C.CVE_UNICODE
-	ON_MOTION  = C.CVE_MOTION
-	ON_CLOSE   = C.CVE_CLOSE
-	ON_RESIZE  = C.CVE_RESIZE
-	ON_UPDATE  = C.CVE_UPDATE
+	ON_INIT    = C.CVE_INIT    // The OpenGL context is about to be created.
+	ON_TERM    = C.CVE_TERM    // The OpenGL context is has been destroyed.
+	ON_GLINIT  = C.CVE_GLINIT  // The OpenGL context has been created.
+	ON_GLTERM  = C.CVE_GLTERM  // The OpenGL context is about to be destroyed.
+	ON_DOWN    = C.CVE_DOWN    // The key (KEY_*) has been pressed.
+	ON_UP      = C.CVE_UP      // The key (KEY_*) has been released.
+	ON_UNICODE = C.CVE_UNICODE // The unicode character has been entered.
+	ON_MOTION  = C.CVE_MOTION  // The mouse has moved.
+	ON_CLOSE   = C.CVE_CLOSE   // The window close button has been pressed.
+	ON_RESIZE  = C.CVE_RESIZE  // The window has been resized.
+	ON_UPDATE  = C.CVE_UPDATE  // Called once per frame.
 
-	HINT_NAME    = C.CVQ_NAME
-	HINT_BORDERS = C.CVQ_BORDERS
-	HINT_XPOS    = C.CVQ_XPOS
-	HINT_YPOS    = C.CVQ_YPOS
-	HINT_WIDTH   = C.CVQ_WIDTH
-	HINT_HEIGHT  = C.CVQ_HEIGHT
+	HINT_NAME    = C.CVQ_NAME    // Should return the desired name for the app.
+	HINT_BORDERS = C.CVQ_BORDERS // Should the window have borders?
+	HINT_XPOS    = C.CVQ_XPOS    // Desired X position (hint).
+	HINT_YPOS    = C.CVQ_YPOS    // Desired Y position (hint).
+	HINT_WIDTH   = C.CVQ_WIDTH   // Desired width (hint). -1 == fullscreen.
+	HINT_HEIGHT  = C.CVQ_HEIGHT  // Desired height.
 )
 
 type Event C.ev
 
+// Event type (ON_* / HINT_*).
 func (e *Event) Type() int {
 	return int(C.evType((*C.ev)(e)))
 }
 
+// Event name.
 func (e *Event) Name() string {
 	return C.GoString(C.evName((*C.ev)(e)))
 }
 
+// Width for ON_RESIZE events.
 func (e *Event) Width() int {
 	return int(C.evWidth((*C.ev)(e)))
 }
 
+// Height for ON_RESIZE events.
 func (e *Event) Height() int {
 	return int(C.evHeight((*C.ev)(e)))
 }
 
+// Key identifier for ON_DOWN/ON_UP events.
 func (e *Event) Which() int {
 	return int(C.evWhich((*C.ev)(e)))
 }
 
+// Unicode character for ON_UNICODE events.
 func (e *Event) Unicode() uint {
 	return uint(C.evUnicode((*C.ev)(e)))
 }
 
+// X mouse position for ON_MOTION events.
 func (e *Event) X() int {
 	return int(C.evX((*C.ev)(e)))
 }
 
+// Y mouse position for ON_MOTION events.
 func (e *Event) Y() int {
 	return int(C.evY((*C.ev)(e)))
 }
 
+// Position for ON_MOTION events.
 func (e *Event) Pos() (x, y int) {
 	x, y = e.X(), e.Y()
 	return
 }
 
+// Helper function for HINT_NAME event.
 func String(s string) uintptr {
 	return uintptr(unsafe.Pointer(C.CString(s)))
 }
 
 var handler func(e *Event) uintptr
 
+// Start the event loop using the passed event handler.
 func Run(h func(e *Event) uintptr) {
 	handler = h
 	C.run()
 }
 
+// Request the application to leave.
 func Quit() {
 	C.cvQuit()
 }
 
+// Key name without the KEY_ prefix.
 func KeyName(k int) string {
 	return C.GoString(C.keyName(C.cvkey(k)))
 }
 
+// Mouse current X position.
 func MouseX() int {
 	return int(C.cvMouseX())
 }
 
+// Mouse current Y position.
 func MouseY() int {
 	return int(C.cvMouseY())
 }
 
+// Current canvas width.
 func Width() int {
 	return int(C.cvWidth())
 }
 
+// Current canvas height.
 func Height() int {
 	return int(C.cvHeight())
 }
 
+// Is the key pressed?
 func Pressed(k int) bool {
 	return C.cvPressed(C.cvkey(k)) == 1
 }
 
+// Has the key just been released?
 func Released(k int) bool {
 	return C.cvReleased(C.cvkey(k)) == 1
 }
