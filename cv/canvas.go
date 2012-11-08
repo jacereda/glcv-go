@@ -5,8 +5,8 @@ type Responder interface {
 	OnTerm()                    // The OpenGL context is has been destroyed.
 	OnGLInit()                  // The OpenGL context has been created.
 	OnGLTerm()                  // The OpenGL context is about to be destroyed.
-	OnPress(k int)              // The key (KEY_*) has been pressed.
-	OnRelease(k int)            // The key (KEY_*) has been released.
+	OnPress(k Key)              // The key (KEY_*) has been pressed.
+	OnRelease(k Key)            // The key (KEY_*) has been released.
 	OnUnicode(u uint)           // The unicode character has been entered.
 	OnMotion(x, y int)          // The mouse has moved.
 	OnClose()                   // The window close button has been pressed.
@@ -85,17 +85,17 @@ func (c *Canvas) glterm() {
 
 func (c *Canvas) OnGLTerm() {}
 
-func (c *Canvas) press(k int) {
+func (c *Canvas) press(k Key) {
 	c.r.OnPress(k)
 }
 
-func (c *Canvas) OnPress(k int) {}
+func (c *Canvas) OnPress(k Key) {}
 
-func (c *Canvas) release(k int) {
+func (c *Canvas) release(k Key) {
 	c.r.OnRelease(k)
 }
 
-func (c *Canvas) OnRelease(k int) {}
+func (c *Canvas) OnRelease(k Key) {}
 
 func (c *Canvas) unicode(u uint) {
 	c.r.OnUnicode(u)
@@ -122,7 +122,7 @@ func (c *Canvas) OnPreUpdate() {}
 func (c *Canvas) OnPostUpdate() {}
 
 func (c *Canvas) name() uintptr {
-	return ctring(c.r.Name())
+	return String(c.r.Name())
 }
 
 func (c *Canvas) Name() string {
@@ -166,11 +166,11 @@ func (c *Canvas) Mouse() (int, int) {
 	return MouseX(), MouseY()
 }
 
-func (c *Canvas) Pressed(k int) bool {
+func (c *Canvas) Pressed(k Key) bool {
 	return Pressed(k)
 }
 
-func (c *Canvas) Released(k int) bool {
+func (c *Canvas) Released(k Key) bool {
 	return Released(k)
 }
 

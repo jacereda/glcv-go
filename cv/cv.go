@@ -166,6 +166,8 @@ const (
 	HINT_HEIGHT  = C.CVQ_HEIGHT  // Desired height.
 )
 
+type Key int
+
 type Event C.ev
 
 // Event type (ON_* / HINT_*).
@@ -189,8 +191,8 @@ func (e *Event) Height() int {
 }
 
 // Key identifier for ON_DOWN/ON_UP events.
-func (e *Event) Which() int {
-	return int(C.evWhich((*C.ev)(e)))
+func (e *Event) Which() Key {
+	return Key(C.evWhich((*C.ev)(e)))
 }
 
 // Unicode character for ON_UNICODE events.
@@ -233,7 +235,7 @@ func Quit() {
 }
 
 // Key name without the KEY_ prefix.
-func KeyName(k int) string {
+func (k Key) Name() string {
 	return C.GoString(C.keyName(C.cvkey(k)))
 }
 
@@ -258,12 +260,12 @@ func Height() int {
 }
 
 // Is the key pressed?
-func Pressed(k int) bool {
+func Pressed(k Key) bool {
 	return C.cvPressed(C.cvkey(k)) == 1
 }
 
 // Has the key just been released?
-func Released(k int) bool {
+func Released(k Key) bool {
 	return C.cvReleased(C.cvkey(k)) == 1
 }
 

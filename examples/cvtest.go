@@ -32,12 +32,12 @@ func handler(e *cv.Event) uintptr {
 	case cv.ON_GLTERM:
 		log.Println("GLTERM")
 	case cv.ON_DOWN:
-		log.Println("DOWN", cv.KeyName(e.Which()))
+		log.Println("DOWN", e.Which().Name())
 		if e.Which() == cv.KEY_ESCAPE {
 			cv.Quit()
 		}
 	case cv.ON_UP:
-		log.Println("UP", cv.KeyName(e.Which()))
+		log.Println("UP", e.Which().Name())
 	case cv.ON_UNICODE:
 		log.Printf("UNICODE %c\n", e.Unicode())
 	case cv.ON_MOTION:
@@ -49,6 +49,12 @@ func handler(e *cv.Event) uintptr {
 		log.Println("RESIZE", e.Width(), e.Height())
 	case cv.ON_UPDATE:
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+		if cv.Pressed(cv.KEY_A) {
+			log.Println("A pressed")
+		}
+		if cv.Released(cv.KEY_A) {
+			log.Println("A released")
+		}
 	}
 	return 1
 }
