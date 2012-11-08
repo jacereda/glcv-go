@@ -27,15 +27,15 @@ func (c *testCanvas) OnGLTerm() {
 	log.Println("GLTerm")
 }
 
-func (c *testCanvas) OnPress(k int) {
-	log.Println("Press", cv.KeyName(k))
+func (c *testCanvas) OnPress(k cv.Key) {
+	log.Println("Press", k.Name())
 	if k == cv.KEY_ESCAPE {
 		c.Quit()
 	}
 }
 
-func (c *testCanvas) OnRelease(k int) {
-	log.Println("Release", cv.KeyName(k))
+func (c *testCanvas) OnRelease(k cv.Key) {
+	log.Println("Release", k.Name())
 }
 
 func (c *testCanvas) OnUnicode(u uint) {
