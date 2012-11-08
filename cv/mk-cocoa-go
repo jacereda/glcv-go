@@ -1,0 +1,3 @@
+install -d glcv/b
+gcc -dynamiclib -DCV_EXPLICIT_ENTRY -o glcv/b/libglcv.dylib -Wall -I glcv/src glcv/src/cocoa.m -framework OpenGL -framework AppKit
+
