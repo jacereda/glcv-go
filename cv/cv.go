@@ -12,6 +12,7 @@ static void run() {
 import "C"
 
 import (
+	"code.google.com/p/glcv-go/key"
 	"runtime"
 	"unsafe"
 )
@@ -55,12 +56,12 @@ func Height() int {
 }
 
 // Is the key pressed?
-func Pressed(k Key) bool {
+func Pressed(k key.Id) bool {
 	return C.cvPressed(C.cvkey(k)) == 1
 }
 
 // Has the key just been released?
-func Released(k Key) bool {
+func Released(k key.Id) bool {
 	return C.cvReleased(C.cvkey(k)) == 1
 }
 

@@ -6,6 +6,10 @@ package cv
 */
 import "C"
 
+import (
+	"code.google.com/p/glcv-go/key"
+)
+
 type Event C.ev
 
 const (
@@ -50,8 +54,8 @@ func (e *Event) Height() int {
 }
 
 // Key identifier for ON_DOWN/ON_UP events.
-func (e *Event) Which() Key {
-	return Key(C.evWhich((*C.ev)(e)))
+func (e *Event) Which() key.Id {
+	return key.Id(C.evWhich((*C.ev)(e)))
 }
 
 // Unicode character for ON_UNICODE events.

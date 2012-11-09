@@ -2,6 +2,7 @@ package main
 
 import (
 	"code.google.com/p/glcv-go/cv"
+	"code.google.com/p/glcv-go/key"
 	gl "github.com/chsc/gogl/gl21"
 	"log"
 )
@@ -33,7 +34,7 @@ func handler(e *cv.Event) uintptr {
 		log.Println("GLTERM")
 	case cv.ON_DOWN:
 		log.Println("DOWN", e.Which().Name())
-		if e.Which() == cv.KEY_ESCAPE {
+		if e.Which() == key.ESCAPE {
 			cv.Quit()
 		}
 	case cv.ON_UP:
@@ -49,10 +50,10 @@ func handler(e *cv.Event) uintptr {
 		log.Println("RESIZE", e.Width(), e.Height())
 	case cv.ON_UPDATE:
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-		if cv.Pressed(cv.KEY_A) {
+		if cv.Pressed(key.A) {
 			log.Println("A pressed")
 		}
-		if cv.Released(cv.KEY_A) {
+		if cv.Released(key.A) {
 			log.Println("A released")
 		}
 	}
@@ -60,6 +61,5 @@ func handler(e *cv.Event) uintptr {
 }
 
 func main() {
-	log.Println("running")
 	cv.Run(handler)
 }

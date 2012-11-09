@@ -1,13 +1,14 @@
 package main
 
 import (
-	"code.google.com/p/glcv-go/cv"
+	"code.google.com/p/glcv-go/canvas"
+	"code.google.com/p/glcv-go/key"
 	gl "github.com/chsc/gogl/gl21"
 	"log"
 )
 
 type testCanvas struct {
-	cv.Canvas
+	canvas.Canvas
 }
 
 func (c *testCanvas) OnInit() {
@@ -27,14 +28,14 @@ func (c *testCanvas) OnGLTerm() {
 	log.Println("GLTerm")
 }
 
-func (c *testCanvas) OnPress(k cv.Key) {
+func (c *testCanvas) OnPress(k key.Id) {
 	log.Println("Press", k.Name())
-	if k == cv.KEY_ESCAPE {
+	if k == key.ESCAPE {
 		c.Quit()
 	}
 }
 
-func (c *testCanvas) OnRelease(k cv.Key) {
+func (c *testCanvas) OnRelease(k key.Id) {
 	log.Println("Release", k.Name())
 }
 
@@ -57,10 +58,10 @@ func (c *testCanvas) OnResize(w, h int) {
 }
 
 func (c *testCanvas) OnUpdate() {
-	if c.Pressed(cv.KEY_A) {
+	if c.Pressed(key.A) {
 		log.Println("A pressed")
 	}
-	if c.Released(cv.KEY_A) {
+	if c.Released(key.A) {
 		log.Println("A released")
 	}
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
