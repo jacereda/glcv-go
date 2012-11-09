@@ -47,6 +47,11 @@ func (c *testCanvas) OnMotion(x, y int) {
 	log.Println("Motion", x, y)
 }
 
+func (c *testCanvas) OnClose() {
+	log.Println("Close")
+	c.Quit()
+}
+
 func (c *testCanvas) OnResize(w, h int) {
 	log.Println("Resize", w, h)
 }
