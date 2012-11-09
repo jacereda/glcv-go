@@ -11,9 +11,7 @@ type Responder interface {
 	OnMotion(x, y int)          // The mouse has moved.
 	OnClose()                   // The window close button has been pressed.
 	OnResize(w, h int)          // The window has been resized.
-	OnPreUpdate()               // Called once per frame before OnUpdate().
 	OnUpdate()                  // Called once per frame.
-	OnPostUpdate()              // Called once per frame after OnUpdate().
 	Name() string               // Should return the desired name for the app.
 	Geometry() (x, y, w, h int) // Should return a hint for the desired geometry.
 	Borders() bool              // Should the window have borders?
@@ -110,16 +108,10 @@ func (c *Canvas) motion(x, y int) {
 func (c *Canvas) OnMotion(x, y int) {}
 
 func (c *Canvas) update() {
-	c.r.OnPreUpdate()
 	c.r.OnUpdate()
-	c.r.OnPostUpdate()
 }
 
 func (c *Canvas) OnUpdate() {}
-
-func (c *Canvas) OnPreUpdate() {}
-
-func (c *Canvas) OnPostUpdate() {}
 
 func (c *Canvas) name() uintptr {
 	return String(c.r.Name())
