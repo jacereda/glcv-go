@@ -1,0 +1,2 @@
+install -d glcv/b
+gcc -shared -DCV_EXPLICIT_ENTRY -I/usr/X11R6/include -L/usr/X11R6/lib -lGL -lX11 -o glcv/b/libglcv.so -Wall -I glcv/src glcv/src/xlib.c
