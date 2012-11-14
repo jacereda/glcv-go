@@ -1,8 +1,7 @@
 package key
 
 /*
-#cgo CFLAGS: -DCV_EXPLICIT_ENTRY -I../cv/glcv/src 
-#cgo LDFLAGS: -L../cv/glcv/b -lglcv
+#cgo CFLAGS: -DCV_NO_MAIN -DCV_EXPLICIT_ENTRY -I../cv/glcv/src
 #include "cv.h"
 */
 import "C"
@@ -141,6 +140,6 @@ const (
 )
 
 // Key name
-func (k Id) Name() string {
-	return C.GoString(C.keyName(C.cvkey(k)))
-}
+//func (k Id) Name() string {
+//	return C.GoString(cv.KeyName(C.cvkey(k)))
+//}

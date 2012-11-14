@@ -1,9 +1,13 @@
 package cv
 
 /*
-#cgo CFLAGS: -DCV_EXPLICIT_ENTRY -Iglcv/src 
-#cgo LDFLAGS: -Lglcv/b -lglcv
+#cgo CFLAGS: -DCV_NO_MAIN -DCV_EXPLICIT_ENTRY 
+#cgo darwin LDFLAGS: -framework AppKit -lobjc
+#cgo linux CFLAGS: -I/usr/X11R6/include
+#cgo linux LDFLAGS: -L/usr/X11R6/lib -lGL -lX11
+#cgo windows LDFLAGS: -lgdi32 -lopengl32
 #include "cv.h"
+
 static void run() {
   intptr_t gohandle(ev *);
   cvRun((intptr_t(*)(const ev *))gohandle);
@@ -72,4 +76,8 @@ func gohandle(e *C.ev) C.intptr_t {
 
 func init() {
 	runtime.LockOSThread()
+}
+
+func KeyName(k key.Id) string {
+	return C.GoString(C.keyName(C.cvkey(k)))
 }

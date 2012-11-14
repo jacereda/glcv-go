@@ -33,12 +33,12 @@ func handler(e *cv.Event) uintptr {
 	case cv.ON_GLTERM:
 		log.Println("GLTERM")
 	case cv.ON_DOWN:
-		log.Println("DOWN", e.Which().Name())
+		log.Println("DOWN", cv.KeyName(e.Which()))
 		if e.Which() == key.ESCAPE {
 			cv.Quit()
 		}
 	case cv.ON_UP:
-		log.Println("UP", e.Which().Name())
+		log.Println("UP", cv.KeyName(e.Which()))
 	case cv.ON_UNICODE:
 		log.Printf("UNICODE %c\n", e.Unicode())
 	case cv.ON_MOTION:

@@ -171,6 +171,10 @@ func (c *Canvas) Released(k key.Id) bool {
 	return cv.Released(k)
 }
 
+func (c *Canvas) KeyName(k key.Id) string {
+	return cv.KeyName(k)
+}
+
 func event(e *cv.Event) uintptr {
 	r := uintptr(1)
 	switch e.Type() {
