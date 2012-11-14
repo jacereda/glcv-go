@@ -1,3 +1,10 @@
+// Copyright (c) 2012, Jorge Acereda Maciá. All rights reserved.  
+//
+// Use of this source code is governed by a BSD-style license that can
+// be found in the LICENSE file.
+
+// Package key contains an enumeration of the keycodes/buttons
+// supported by the cv/canvas packages.
 package key
 
 /*
