@@ -29,14 +29,14 @@ func (c *testCanvas) OnGLTerm() {
 }
 
 func (c *testCanvas) OnPress(k key.Id) {
-	log.Println("Press", k.Name())
+	log.Println("Press", c.KeyName(k))
 	if k == key.ESCAPE {
 		c.Quit()
 	}
 }
 
 func (c *testCanvas) OnRelease(k key.Id) {
-	log.Println("Release", k.Name())
+	log.Println("Release", c.KeyName(k))
 }
 
 func (c *testCanvas) OnUnicode(u uint) {
@@ -55,6 +55,7 @@ func (c *testCanvas) OnClose() {
 
 func (c *testCanvas) OnResize(w, h int) {
 	log.Println("Resize", w, h)
+	gl.Viewport(0, 0, gl.Sizei(w), gl.Sizei(h))
 }
 
 func (c *testCanvas) OnUpdate() {
