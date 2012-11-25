@@ -34,8 +34,10 @@ func handler(e *cv.Event) uintptr {
 		log.Println("GLTERM")
 	case cv.ON_DOWN:
 		log.Println("DOWN", cv.KeyName(e.Which()))
-		if e.Which() == key.ESCAPE {
-			cv.Quit()
+		switch e.Which() {
+		case key.ESCAPE: cv.Quit()
+		case key.S: cv.ShowCursor(); log.Println("SHOW")
+		case key.H: cv.HideCursor(); log.Println("HIDE")
 		}
 	case cv.ON_UP:
 		log.Println("UP", cv.KeyName(e.Which()))

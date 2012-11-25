@@ -35,27 +35,37 @@ type Canvas struct {
 
 var g_canvas *Canvas
 
-// Initialize the canvas with the given event responder (usually the
-// derived canvas).
+// InitCanvas initializes the canvas with the given event responder
+// (usually the derived canvas).
 func (c *Canvas) InitCanvas(r Responder) {
 	c.r = r
 	g_canvas = c
 }
 
-// Returns the next event responder in the chain. Useful if you want
-// to call the parent canvas in one of your handlers.
+// NextResponder returns the next event responder in the chain. Useful
+// if you want to call the parent canvas in one of your handlers.
 func (c *Canvas) NextResponder() Responder {
 	return c
 }
 
-// Start the event loop.
+// Go starts the event loop.
 func (c *Canvas) Go() {
 	cv.Run(event)
 }
 
-// Request the application to leave.
+// Quit requests the application to leave.
 func (c *Canvas) Quit() {
 	cv.Quit()
+}
+
+// ShowCursor makes the mouse cursor visible.
+func (c *Canvas) ShowCursor() {
+	cv.ShowCursor()
+}
+
+// HideCursor makes the mouse cursor invisible.
+func (c *Canvas) HideCursor() {
+	cv.HideCursor()
 }
 
 func (c *Canvas) init() {
