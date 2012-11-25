@@ -152,6 +152,8 @@ intptr_t osEvent(ev * e) {
         intptr_t ret = 1;
         switch (evType(e)) {
         case CVE_QUIT: g_done = 1; break;
+        case CVE_SHOWCURSOR: send(cls("NSCursor"), sel("unhide")); break;
+        case CVE_HIDECURSOR: send(cls("NSCursor"), sel("hide")); break;
         default: ret = 0;
         }
         return ret;

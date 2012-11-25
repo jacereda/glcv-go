@@ -35,45 +35,55 @@ func String(s string) uintptr {
 
 var handler func(e *Event) uintptr
 
-// Start the event loop using the passed event handler.
+// Run starts the event loop using the passed event handler.
 func Run(h func(e *Event) uintptr) {
 	handler = h
 	C.run()
 }
 
-// Request the application to leave.
-func Quit() {
-	C.cvQuit()
-}
-
-// Mouse current X position.
+// MosueX returns the current X mouse position.
 func MouseX() int {
 	return int(C.cvMouseX())
 }
 
-// Mouse current Y position.
+// MouseY returns the current Y mouse position.
 func MouseY() int {
 	return int(C.cvMouseY())
 }
 
-// Current canvas width.
+// Width returns the current canvas width.
 func Width() int {
 	return int(C.cvWidth())
 }
 
-// Current canvas height.
+// Height returns the current canvas height.
 func Height() int {
 	return int(C.cvHeight())
 }
 
-// Is the key pressed?
+// Pressed returns if the key is pressed.
 func Pressed(k key.Id) bool {
 	return C.cvPressed(C.cvkey(k)) == 1
 }
 
-// Has the key just been released?
+// Released returs if the key just been released.
 func Released(k key.Id) bool {
 	return C.cvReleased(C.cvkey(k)) == 1
+}
+
+// Quits requests the application to leave.
+func Quit() {
+	C.cvQuit()
+}
+
+// ShowCursor makes the mouse cursor visible.
+func ShowCursor() {
+	C.cvShowCursor()
+}
+
+// HideCursor makes the mouse cursor invisible.
+func HideCursor() {
+	C.cvHideCursor()
 }
 
 //export gohandle

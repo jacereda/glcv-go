@@ -30,13 +30,15 @@ func (c *testCanvas) OnGLTerm() {
 
 func (c *testCanvas) OnPress(k key.Id) {
 	log.Println("Press", c.KeyName(k))
-	if k == key.ESCAPE {
-		c.Quit()
-	}
 }
 
 func (c *testCanvas) OnRelease(k key.Id) {
 	log.Println("Release", c.KeyName(k))
+	switch k {
+	case key.ESCAPE: c.Quit()
+	case key.S: c.ShowCursor()
+	case key.H: c.HideCursor()
+	}
 }
 
 func (c *testCanvas) OnUnicode(u uint) {
