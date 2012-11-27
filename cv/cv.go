@@ -76,9 +76,15 @@ func Quit() {
 	C.cvQuit()
 }
 
-// ShowCursor makes the mouse cursor visible.
-func ShowCursor() {
-	C.cvShowCursor()
+// SetCursor establishes the cursor bitmap.
+func SetCursor(bitmap []byte, hotx, hoty int) {
+	C.cvSetCursor((*C.uint8_t)(unsafe.Pointer(&bitmap[0])), 
+		C.int(hotx), C.int(hoty))
+}
+
+// DefaultCursor establishes the default cursor bitmap.
+func DefaultCursor() {
+	C.cvDefaultCursor()
 }
 
 // HideCursor makes the mouse cursor invisible.

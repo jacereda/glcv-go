@@ -11,12 +11,30 @@ typedef CGPoint NSPoint;
 typedef CGSize NSSize;
 typedef CGRect NSRect;
 
+#define WINDOWED_MASK NSTitledWindowMask | NSClosableWindowMask |\
+        NSMiniaturizableWindowMask | NSResizableWindowMask
+#define FULLSCREEN_MASK NSBorderlessWindowMask
+
 
 #define cls objc_getClass
 #define sel sel_registerName
 #define send objc_msgSend
 #define fsend objc_msgSend_fpret
 #define ssend objc_msgSendSuper
+
+static inline NSPoint mkpoint(float x, float y) {
+        NSPoint p;
+        p.x = x; p.y = y; 
+        return p;
+}
+
+static inline NSSize mksize(float w, float h) {
+        NSSize s;
+        s.width = w;
+        s.height = h;
+        return s;
+}
+
 static inline NSPoint psend(id i, SEL s) {
 	NSPoint (*fn)() = (NSPoint(*)())objc_msgSend;
         return fn(i, s);
@@ -47,8 +65,8 @@ typedef struct objc_object NSResponder;
 typedef struct objc_object NSView;
 typedef struct objc_object NSDate;
 typedef struct objc_object NSString;
-typedef unsigned NSUInteger;
-typedef int NSInteger;
+typedef unsigned long NSUInteger;
+typedef long NSInteger;
 typedef unsigned unichar;
 typedef  uint32_t NSOpenGLPixelFormatAttribute;
 typedef NSUInteger NSBackingStoreType;
@@ -141,6 +159,7 @@ typedef enum {
 #define  NSAnyEventMask (~0)
 
 extern NSString * const NSDefaultRunLoopMode;
+extern NSString *NSDeviceRGBColorSpace;
 
 
 static int g_done = 0;
@@ -148,12 +167,101 @@ static int g_done = 0;
 #define dbg cvReport
 #define err cvReport
 
+typedef struct Window {
+	char storage[8192];
+} Window;
+
+typedef struct View {
+	char storage[8192];
+	unsigned int _prevflags;
+} View;
+
+
+static Window * g_win;
+static View * g_view;
+static NSRect g_rect;
+static int g_fullscreen = 0;
+
+static void setWindowMode(int style, NSRect rect) {
+        send((id)g_win, sel("setStyleMask:"), style);
+        send((id)g_win, sel("setFrame:display:"), rect, TRUE);
+        send((id)g_win, sel("setLevel:"), (NSInteger)CGWindowLevelForKey(
+                     style == FULLSCREEN_MASK? 
+                     kCGPopUpMenuWindowLevelKey : kCGNormalWindowLevelKey));
+        send((id)g_win, sel("makeFirstResponder:"), g_view);
+}
+
+static NSRect scrFrame() {
+        return rsend(send(send(cls("NSScreen"), sel("screens")),
+                          sel("objectAtIndex:"), (NSUInteger)0),
+                     sel("frame"));
+}
+
+static id alloc(const char * class) {
+        return send(cls(class), sel("alloc"));
+}
+
+static void rel(id o) {
+        send(o, sel("release"));
+}
+
+static void setcursor(uint8_t * rgba, int16_t hotx, int16_t hoty) {
+        id cur, img, b;
+        b = alloc("NSBitmapImageRep");
+        send(b, sel("initWithBitmapDataPlanes:"
+                    "pixelsWide:"
+                    "pixelsHigh:"
+                    "bitsPerSample:"
+                    "samplesPerPixel:"
+                    "hasAlpha:"
+                    "isPlanar:"
+                    "colorSpaceName:"
+                    "bytesPerRow:"
+                    "bitsPerPixel:"),
+             &rgba,
+             (NSInteger)32,
+             (NSInteger)32,
+             (NSInteger)8,
+             (NSInteger)4,
+             (BOOL)1,
+             (BOOL)0,
+             NSDeviceRGBColorSpace,
+             (NSInteger)32*4,
+             (NSInteger)32);
+        img = alloc("NSImage");
+        send(img, sel("initWithSize:"), mksize(32, 32));
+        send(img, sel("addRepresentation:"), b);
+        rel(b);
+        cur = alloc("NSCursor");
+        send(cur, sel("initWithImage:hotSpot:"), img , mkpoint(hotx, hoty));
+        rel(img);
+        send(cur, sel("set"));
+}
+
 intptr_t osEvent(ev * e) {
         intptr_t ret = 1;
         switch (evType(e)) {
         case CVE_QUIT: g_done = 1; break;
-        case CVE_SHOWCURSOR: send(cls("NSCursor"), sel("unhide")); break;
-        case CVE_HIDECURSOR: send(cls("NSCursor"), sel("hide")); break;
+        case CVE_SETCURSOR: 
+                setcursor((uint8_t*)evArg0(e), 
+                          evArg1(e) >> 16, evArg1(e) & 0xffff); 
+                break;
+        case CVE_DEFAULTCURSOR: 
+                send(send(cls("NSCursor"), sel("arrowCursor")), sel("set")); 
+                break;
+        case CVE_FULLSCREEN:
+                if (!g_fullscreen) {
+                        g_rect = rsend((id)g_win, sel("frame"));
+                        setWindowMode(FULLSCREEN_MASK, scrFrame());
+                        g_fullscreen = 1;
+                }
+                break;
+        case CVE_WINDOWED: 
+                if (g_fullscreen) {
+                        setWindowMode(WINDOWED_MASK, g_rect);
+                        g_fullscreen = 0;
+                }
+                break;
         default: ret = 0;
         }
         return ret;
@@ -278,14 +386,6 @@ static cvkey mapkeycode(unsigned k) {
         }
         return ret;
 }
-typedef struct Window {
-	char storage[8192];
-} Window;
-
-typedef struct View {
-	char storage[8192];
-	unsigned int _prevflags;
-} View;
 
 static void _I_View_dealloc(struct View * self, SEL _cmd) {
 	struct objc_super x = { (id)self, class_getSuperclass((Class)cls("View")) };
@@ -493,20 +593,12 @@ static void init() {
 }
 
 int cvrun(int argc, char ** argv) {
-        NSAutoreleasePool * arp = send(send(cls("NSAutoreleasePool"), sel("alloc")), sel("init"));
+        NSAutoreleasePool * arp = send(alloc("NSAutoreleasePool"), sel("init"));
         ProcessSerialNumber psn = { 0, kCurrentProcess };
         Window * win;
-        NSArray* scrs;
-        NSScreen * scr;
         NSRect frm;
         View * view;
-        int style = cvInject(CVQ_BORDERS, 0, 0)? 
-                0 
-                | NSTitledWindowMask
-                | NSClosableWindowMask
-                | NSMiniaturizableWindowMask 
-                | NSResizableWindowMask
-                : NSBorderlessWindowMask;
+        int style = WINDOWED_MASK;
         GLint param = 1;
         NSOpenGLContext *ctx = 0;
         CGDirectDisplayID dpy = kCGDirectMainDisplay;
@@ -532,58 +624,52 @@ int cvrun(int argc, char ** argv) {
         send((id)app, sel("activateIgnoringOtherApps:"), (BOOL)1);
         send((id)app, sel("finishLaunching"));
 
-        scrs = send(cls("NSScreen"), sel("screens"));
-        scr = send((id)scrs, sel("objectAtIndex:"), (NSUInteger)0);
         cvInject(CVE_INIT, argc, (intptr_t)argv);
         rect.origin.x = cvInject(CVQ_XPOS, 0, 0);
         rect.origin.y = cvInject(CVQ_YPOS, 0, 0);
         rect.size.width = cvInject(CVQ_WIDTH, 0, 0);
         rect.size.height = cvInject(CVQ_HEIGHT, 0, 0);
-        rect.origin.y = rsend((id)scr, sel("frame")).size.height - 1 - 
-                rect.origin.y - rect.size.height;
-        if (rect.size.width == -1)
-                rect = rsend((id)scr, sel("frame"));
-        win = (Window*)send(send(cls("Window"), sel("alloc")), sel("initWithContentRect:styleMask:backing:defer:"), (NSRect)rect, (NSUInteger)style, (NSBackingStoreType)NSBackingStoreBuffered, (BOOL)0);
-        if (style == NSBorderlessWindowMask)
-                send((id)win, sel("setLevel:"), (NSInteger)CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey));
+        rect.origin.y = scrFrame().size.height - 1 - rect.origin.y - rect.size.height;
+        win = (Window*)send(alloc("Window"), sel("initWithContentRect:styleMask:backing:defer:"), (NSRect)rect, (NSUInteger)style, (NSBackingStoreType)NSBackingStoreBuffered, (BOOL)0);
         frm = rsend2(cls("Window"), sel("contentRectForFrameRect:styleMask:"), rsend((id)win, sel("frame")), (NSUInteger)style);
-	view = (View*)send(send(cls("View"), sel("alloc")), sel("initWithFrame:"), (NSRect)frm);
+	view = (View*)send(alloc("View"), sel("initWithFrame:"), (NSRect)frm);
+        g_win = win;
+        g_view = view;
         send((id)win, sel("makeFirstResponder:"), (NSResponder *)view);
         send((id)win, sel("setDelegate:"), (id)view);
         send((id)win, sel("setContentView:"), (NSView *)view);
         send((id)win, sel("setReleasedWhenClosed:"), (BOOL)0);
 
-        fmt = send(send(cls("NSOpenGLPixelFormat"), sel("alloc")), sel("initWithAttributes:"), (const NSOpenGLPixelFormatAttribute *)attr);
-        ctx = send(send(cls("NSOpenGLContext"), sel("alloc")), sel("initWithFormat:shareContext:"), (NSOpenGLPixelFormat *)fmt, (NSOpenGLContext *)0);
-        send((id)fmt, sel("release"));
+        fmt = send(alloc("NSOpenGLPixelFormat"), sel("initWithAttributes:"), (const NSOpenGLPixelFormatAttribute *)attr);
+        ctx = send(alloc("NSOpenGLContext"), sel("initWithFormat:shareContext:"), (NSOpenGLPixelFormat *)fmt, (NSOpenGLContext *)0);
+        rel((id)fmt);
         send((id)ctx, sel("setView:"), (NSView *)view);
         send((id)ctx, sel("setValues:forParameter:"), (const GLint *)&param, (NSOpenGLContextParameter)NSOpenGLCPSwapInterval);
         send((id)ctx, sel("makeCurrentContext"));
         cvInject(CVE_GLINIT, 0, 0);
-//      [NSCursor hide];
         send((id)win, sel("makeKeyAndOrderFront:"), (id)view);
         cvInject(CVE_RESIZE, rect.size.width, rect.size.height);
 
         send((id)arp, sel("drain"));
         do {
-                arp = send(send(cls("NSAutoreleasePool"), sel("alloc")), sel("init"));
+                arp = send(alloc("NSAutoreleasePool"), sel("init"));
                 NSEvent * ev = send((id)app, sel("nextEventMatchingMask:untilDate:inMode:dequeue:"), NSAnyEventMask, send(cls("NSDate"), sel("distantPast")), (NSString *)NSDefaultRunLoopMode, (BOOL)1);
                 send((id)app, sel("sendEvent:"), (NSEvent *)ev);
                 cvInject(CVE_UPDATE, 0, 0);
                 send((id)arp, sel("drain"));
                 send((id)ctx, sel("flushBuffer"));
         } while (!g_done);
-        arp = send(send(cls("NSAutoreleasePool"), sel("alloc")), sel("init"));
+        arp = send(alloc("NSAutoreleasePool"), sel("init"));
         cvInject(CVE_GLTERM, 0, 0);
         send((id)ctx, sel("clearDrawable"));
-        send((id)ctx, sel("release"));
+        rel((id)ctx);
         send((id)win, sel("makeKeyAndOrderFront:"), (id)((void *)0));
         send((id)win, sel("makeFirstResponder:"), (NSResponder *)((void *)0));
         send((id)win, sel("setDelegate:"), (id)((void *)0));
         send((id)win, sel("setContentView:"), (NSView *)((void *)0));
         send((id)win, sel("close"));
-        send((id)win, sel("release"));
-        send((id)view, sel("release"));
+        rel((id)win);
+        rel((id)view);
         send((id)arp, sel("drain"));
         return cvInject(CVE_TERM, 0, 0);
 }

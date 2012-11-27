@@ -36,7 +36,7 @@ func (c *testCanvas) OnRelease(k key.Id) {
 	log.Println("Release", c.KeyName(k))
 	switch k {
 	case key.ESCAPE: c.Quit()
-	case key.S: c.ShowCursor()
+	case key.S: c.DefaultCursor()
 	case key.H: c.HideCursor()
 	}
 }
@@ -76,10 +76,6 @@ func (c *testCanvas) Name() string {
 
 func (c *testCanvas) Geometry() (x, y, w, h int) {
 	return 20, 20, 512, 512
-}
-
-func (c *testCanvas) Borders() bool {
-	return true
 }
 
 func main() {
