@@ -26,7 +26,6 @@ const (
 	ON_UPDATE  = C.CVE_UPDATE  // Called once per frame.
 
 	HINT_NAME    = C.CVQ_NAME    // Should return the desired name for the app.
-	HINT_BORDERS = C.CVQ_BORDERS // Should the window have borders?
 	HINT_XPOS    = C.CVQ_XPOS    // Desired X position (hint).
 	HINT_YPOS    = C.CVQ_YPOS    // Desired Y position (hint).
 	HINT_WIDTH   = C.CVQ_WIDTH   // Desired width (hint). -1 == fullscreen.

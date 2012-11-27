@@ -25,7 +25,6 @@ type Responder interface {
 	OnUpdate()                  // Called once per frame.
 	Name() string               // Should return the desired name for the app.
 	Geometry() (x, y, w, h int) // Should return a hint for the desired geometry.
-	Borders() bool              // Should the window have borders?
 }
 
 // The canvas structure, you should embed it in your derived canvas.
@@ -58,9 +57,9 @@ func (c *Canvas) Quit() {
 	cv.Quit()
 }
 
-// ShowCursor makes the mouse cursor visible.
-func (c *Canvas) ShowCursor() {
-	cv.ShowCursor()
+// DefaultCursor establishes the default mouse cursor.
+func (c *Canvas) DefaultCursor() {
+	cv.DefaultCursor()
 }
 
 // HideCursor makes the mouse cursor invisible.
@@ -142,17 +141,6 @@ func (c *Canvas) Name() string {
 	return "canvas"
 }
 
-func (c *Canvas) borders() uintptr {
-	if c.Borders() {
-		return 1
-	}
-	return 0
-}
-
-func (c *Canvas) Borders() bool {
-	return true
-}
-
 func (c *Canvas) geometry() (x, y, w, h uintptr) {
 	ix, iy, iw, ih := c.r.Geometry()
 	x, y, w, h = uintptr(ix), uintptr(iy), uintptr(iw), uintptr(ih)
@@ -216,8 +204,6 @@ func event(e *cv.Event) uintptr {
 		g_canvas.update()
 	case cv.HINT_NAME:
 		r = g_canvas.name()
-	case cv.HINT_BORDERS:
-		r = g_canvas.borders()
 	case cv.HINT_XPOS:
 		r, _, _, _ = g_canvas.geometry()
 	case cv.HINT_YPOS:

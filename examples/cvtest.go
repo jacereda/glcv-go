@@ -13,8 +13,6 @@ func handler(e *cv.Event) uintptr {
 		return 0
 	case cv.HINT_NAME:
 		return cv.String("cvtest")
-	case cv.HINT_BORDERS:
-		return 1
 	case cv.HINT_XPOS:
 		return 20
 	case cv.HINT_YPOS:
@@ -22,7 +20,7 @@ func handler(e *cv.Event) uintptr {
 	case cv.HINT_WIDTH:
 		return 640
 	case cv.HINT_HEIGHT:
-		return 640
+		return 480;
 	case cv.ON_INIT:
 		log.Println("INIT")
 	case cv.ON_TERM:
@@ -36,8 +34,9 @@ func handler(e *cv.Event) uintptr {
 		log.Println("DOWN", cv.KeyName(e.Which()))
 		switch e.Which() {
 		case key.ESCAPE: cv.Quit()
-		case key.S: cv.ShowCursor(); log.Println("SHOW")
-		case key.H: cv.HideCursor(); log.Println("HIDE")
+		case key.S: cv.DefaultCursor();
+		case key.H: cv.HideCursor();
+		default: return 0
 		}
 	case cv.ON_UP:
 		log.Println("UP", cv.KeyName(e.Which()))
