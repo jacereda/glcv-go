@@ -67,6 +67,18 @@ func (c *Canvas) HideCursor() {
 	cv.HideCursor()
 }
 
+
+// Fullscreen switches the canvas to fullscreen mode.
+func (c *Canvas) Fullscreen() {
+	cv.Fullscreen()
+}
+
+// Windowed switches the canvas to windowed mode.
+func (c *Canvas) Windowed() {
+	cv.Windowed()
+}
+
+
 func (c *Canvas) init() {
 	c.r.OnInit()
 }

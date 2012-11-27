@@ -38,6 +38,8 @@ func (c *testCanvas) OnRelease(k key.Id) {
 	case key.ESCAPE: c.Quit()
 	case key.S: c.DefaultCursor()
 	case key.H: c.HideCursor()
+	case key.F: c.Fullscreen()
+	case key.W: c.Windowed()
 	}
 }
 

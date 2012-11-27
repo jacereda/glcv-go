@@ -34,8 +34,10 @@ func handler(e *cv.Event) uintptr {
 		log.Println("DOWN", cv.KeyName(e.Which()))
 		switch e.Which() {
 		case key.ESCAPE: cv.Quit()
-		case key.S: cv.DefaultCursor();
-		case key.H: cv.HideCursor();
+		case key.S: cv.DefaultCursor()
+		case key.H: cv.HideCursor()
+		case key.F: cv.Fullscreen()
+		case key.W: cv.Windowed()
 		default: return 0
 		}
 	case cv.ON_UP:

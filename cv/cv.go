@@ -92,6 +92,16 @@ func HideCursor() {
 	C.cvHideCursor()
 }
 
+// Fullscreen switches the canvas to fullscreen mode.
+func Fullscreen() {
+	C.cvFullscreen()
+}
+
+// Windowed switches the canvas to windowed mode.
+func Windowed() {
+	C.cvWindowed()
+}
+
 //export gohandle
 func gohandle(e *C.ev) C.intptr_t {
 	return C.intptr_t(handler((*Event)(e)))
