@@ -5,6 +5,7 @@ import (
 	"code.google.com/p/glcv-go/key"
 	gl "github.com/chsc/gogl/gl21"
 	"log"
+	"time"
 )
 
 func handler(e *cv.Event) uintptr {
@@ -20,7 +21,7 @@ func handler(e *cv.Event) uintptr {
 	case cv.HINT_WIDTH:
 		return 640
 	case cv.HINT_HEIGHT:
-		return 480;
+		return 480
 	case cv.ON_INIT:
 		log.Println("INIT")
 	case cv.ON_TERM:
@@ -33,12 +34,18 @@ func handler(e *cv.Event) uintptr {
 	case cv.ON_DOWN:
 		log.Println("DOWN", cv.KeyName(e.Which()))
 		switch e.Which() {
-		case key.ESCAPE: cv.Quit()
-		case key.S: cv.DefaultCursor()
-		case key.H: cv.HideCursor()
-		case key.F: cv.Fullscreen()
-		case key.W: cv.Windowed()
-		default: return 0
+		case key.ESCAPE:
+			cv.Quit()
+		case key.S:
+			cv.DefaultCursor()
+		case key.H:
+			cv.HideCursor()
+		case key.F:
+			cv.Fullscreen()
+		case key.W:
+			cv.Windowed()
+		default:
+			return 0
 		}
 	case cv.ON_UP:
 		log.Println("UP", cv.KeyName(e.Which()))
@@ -52,6 +59,8 @@ func handler(e *cv.Event) uintptr {
 	case cv.ON_RESIZE:
 		log.Println("RESIZE", e.Width(), e.Height())
 	case cv.ON_UPDATE:
+		n := gl.Float(time.Now().Nanosecond()) / 1000000000
+		gl.ClearColor(0, n, 0, 1)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		if cv.Pressed(key.A) {
 			log.Println("A pressed")

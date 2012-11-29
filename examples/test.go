@@ -5,6 +5,7 @@ import (
 	"code.google.com/p/glcv-go/key"
 	gl "github.com/chsc/gogl/gl21"
 	"log"
+	"time"
 )
 
 type testCanvas struct {
@@ -35,11 +36,16 @@ func (c *testCanvas) OnPress(k key.Id) {
 func (c *testCanvas) OnRelease(k key.Id) {
 	log.Println("Release", c.KeyName(k))
 	switch k {
-	case key.ESCAPE: c.Quit()
-	case key.S: c.DefaultCursor()
-	case key.H: c.HideCursor()
-	case key.F: c.Fullscreen()
-	case key.W: c.Windowed()
+	case key.ESCAPE:
+		c.Quit()
+	case key.S:
+		c.DefaultCursor()
+	case key.H:
+		c.HideCursor()
+	case key.F:
+		c.Fullscreen()
+	case key.W:
+		c.Windowed()
 	}
 }
 
@@ -69,6 +75,8 @@ func (c *testCanvas) OnUpdate() {
 	if c.Released(key.A) {
 		log.Println("A released")
 	}
+	n := gl.Float(time.Now().Nanosecond()) / 1000000000
+	gl.ClearColor(0, n, 0, 1)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }
 
