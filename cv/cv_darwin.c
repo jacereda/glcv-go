@@ -648,8 +648,8 @@ int cvrun(int argc, char ** argv) {
         send((id)ctx, sel("makeCurrentContext"));
         cvInject(CVE_GLINIT, 0, 0);
         send((id)win, sel("makeKeyAndOrderFront:"), (id)view);
+        rect = rsend((id)view, sel("frame"));
         cvInject(CVE_RESIZE, rect.size.width, rect.size.height);
-
         send((id)arp, sel("drain"));
         do {
                 arp = send(alloc("NSAutoreleasePool"), sel("init"));
