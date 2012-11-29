@@ -12,6 +12,7 @@ package cv
 #cgo darwin LDFLAGS: -framework AppKit -lobjc
 #cgo linux CFLAGS: -I/usr/X11R6/include
 #cgo linux LDFLAGS: -L/usr/X11R6/lib -lGL -lX11
+#cgo windows CFLAGS: -fno-stack-check -fno-stack-protector -mno-stack-arg-probe
 #cgo windows LDFLAGS: -lgdi32 -lopengl32
 #include "cv.h"
 
