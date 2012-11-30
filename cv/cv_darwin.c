@@ -168,6 +168,7 @@ typedef struct View {
 static id g_win;
 static id g_view;
 static NSRect g_rect;
+static id g_cur = 0;
 
 static void setWindowMode(int style, NSRect rect) {
         send(g_win, sel("setStyleMask:"), style);
@@ -186,8 +187,22 @@ static void rel(id o) {
         send(o, sel("release"));
 }
 
-static void setcursor(uint8_t * rgba, int16_t hotx, int16_t hoty) {
-        id cur, img, b;
+static void relcursor() {
+        rel(g_cur);
+        g_cur = 0;
+        send(g_win, sel("invalidateCursorRectsForView:"), g_view);
+}
+
+static id curcursor() {
+        return g_cur? g_cur : send(cls("NSCursor"), sel("arrowCursor"));
+}
+
+static void setcursor(uint8_t * crgba, int16_t hotx, int16_t hoty) {
+        static uint8_t srgba[32*32*4];
+        uint8_t * rgba = srgba;
+        id img, b;
+        relcursor();
+        memcpy(srgba, crgba, sizeof(srgba));
         b = alloc("NSBitmapImageRep");
         send(b, sel("initWithBitmapDataPlanes:"
                     "pixelsWide:"
@@ -213,15 +228,9 @@ static void setcursor(uint8_t * rgba, int16_t hotx, int16_t hoty) {
         send(img, sel("initWithSize:"), mksize(32, 32));
         send(img, sel("addRepresentation:"), b);
         rel(b);
-        cur = alloc("NSCursor");
-        send(cur, sel("initWithImage:hotSpot:"), img , mkpoint(hotx, hoty));
+        g_cur = alloc("NSCursor");
+        send(g_cur, sel("initWithImage:hotSpot:"), img , mkpoint(hotx, hoty));
         rel(img);
-        send(cur, sel("set"));
-        rel(cur);
-}
-
-static void defaultcursor() {
-        send(send(cls("NSCursor"), sel("arrowCursor")), sel("set")); 
 }
 
 static NSRect scrFrame() {
@@ -240,7 +249,7 @@ intptr_t osEvent(ev * e) {
                           evArg1(e) >> 16, evArg1(e) & 0xffff); 
                 break;
         case CVE_DEFAULTCURSOR: 
-                defaultcursor();
+                relcursor();
                 break;
         case CVE_FULLSCREEN:
                 if (!fullscreen) {
@@ -515,6 +524,13 @@ static BOOL _I_View_isOpaque(id self, SEL _cmd) {
         return YES;
 }
 
+static void _I_View_resetCursorRects(id self) {
+        id cur = curcursor();
+        send(self, sel("discardCursorRects"));
+        send(self, sel("addCursorRect:cursor:"), 
+             rsend(self, sel("visibleRect")), cur);
+        send(cur, sel("set"));
+}
 
 static void _I_Window_dealloc(id self, SEL _cmd) {
 	struct objc_super x =  {self, class_getSuperclass((Class)cls("Window")) };
@@ -568,6 +584,7 @@ static void init() {
 	am(view, sel("handleMotion:"), (IMP)_I_View_handleMotion_, "v24@0:8@16");
 	am(view, sel("mouseMoved:"), (IMP)_I_View_mouseMoved_, "v24@0:8@16");
 	am(view, sel("isOpaque"), (IMP)_I_View_isOpaque, "c16@0:8");
+        am(view, sel("resetCursorRects"), (IMP)_I_View_resetCursorRects, "v16@0:8");
 #undef am
 
 }
@@ -617,10 +634,10 @@ int cvrun(int argc, char ** argv) {
         send(view, sel("setSelectable:"), NO);
         g_win = win;
         g_view = view;
-        send(win, sel("makeFirstResponder:"), view);
+        send(win, sel("setReleasedWhenClosed:"), NO);
         send(win, sel("setDelegate:"), view);
         send(win, sel("setContentView:"), view);
-        send(win, sel("setReleasedWhenClosed:"), NO);
+        send(win, sel("setAcceptsMouseMovedEvents:"), YES);
 
         fmt = send(alloc("NSOpenGLPixelFormat"), sel("initWithAttributes:"), (const NSOpenGLPixelFormatAttribute *)attr);
         ctx = send(alloc("NSOpenGLContext"), sel("initWithFormat:shareContext:"), fmt, NIL);
@@ -629,6 +646,7 @@ int cvrun(int argc, char ** argv) {
         send(ctx, sel("setValues:forParameter:"), (const GLint *)&param, (NSOpenGLContextParameter)NSOpenGLCPSwapInterval);
         send(ctx, sel("makeCurrentContext"));
         cvInject(CVE_GLINIT, 0, 0);
+        setWindowMode(WINDOWED_MASK, rect);
         send(win, sel("makeKeyAndOrderFront:"), view);
         rect = rsend(view, sel("frame"));
         cvInject(CVE_RESIZE, rect.size.width, rect.size.height);
