@@ -638,6 +638,8 @@ int cvrun(int argc, char ** argv) {
         send(win, sel("setDelegate:"), view);
         send(win, sel("setContentView:"), view);
         send(win, sel("setAcceptsMouseMovedEvents:"), YES);
+        send(win, sel("makeKeyAndOrderFront:"), view);
+        send(win, sel("makeFirstResponder:"), view);
 
         fmt = send(alloc("NSOpenGLPixelFormat"), sel("initWithAttributes:"), (const NSOpenGLPixelFormatAttribute *)attr);
         ctx = send(alloc("NSOpenGLContext"), sel("initWithFormat:shareContext:"), fmt, NIL);
@@ -646,8 +648,6 @@ int cvrun(int argc, char ** argv) {
         send(ctx, sel("setValues:forParameter:"), (const GLint *)&param, (NSOpenGLContextParameter)NSOpenGLCPSwapInterval);
         send(ctx, sel("makeCurrentContext"));
         cvInject(CVE_GLINIT, 0, 0);
-        setWindowMode(WINDOWED_MASK, rect);
-        send(win, sel("makeKeyAndOrderFront:"), view);
         rect = rsend(view, sel("frame"));
         cvInject(CVE_RESIZE, rect.size.width, rect.size.height);
         send(arp, sel("drain"));
