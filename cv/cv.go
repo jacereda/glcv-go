@@ -11,7 +11,7 @@ package cv
 #cgo CFLAGS: -DCV_NO_MAIN -DCV_EXPLICIT_ENTRY 
 #cgo darwin LDFLAGS: -framework AppKit -lobjc
 #cgo linux CFLAGS: -I/usr/X11R6/include
-#cgo linux LDFLAGS: -L/usr/X11R6/lib -lGL -lX11
+#cgo linux LDFLAGS: -L/usr/X11R6/lib -lGL -lX11 -lXcursor
 #cgo windows CFLAGS: -fno-stack-check -fno-stack-protector -mno-stack-arg-probe
 #cgo windows LDFLAGS: -lgdi32 -lopengl32
 #include "cv.h"
