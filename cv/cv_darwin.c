@@ -613,6 +613,7 @@ int cvrun(int argc, char ** argv) {
         id fmt;
         NSRect rect;
         id app;
+        puts("");
         TransformProcessType(&psn, kProcessTransformToForegroundApplication);
         SetFrontProcess(&psn);
 	init();
