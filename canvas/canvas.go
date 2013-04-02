@@ -160,7 +160,7 @@ func (c *Canvas) geometry() (x, y, w, h uintptr) {
 }
 
 func (c *Canvas) Geometry() (int, int, int, int) {
-	return -1, -1, -1, -1
+	return 20, 20, 256, 256
 }
 
 func (c *Canvas) Size() (int, int) {
