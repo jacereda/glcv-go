@@ -9,6 +9,7 @@ package cv
 
 /*
 #cgo CFLAGS: -DCV_NO_MAIN -DCV_EXPLICIT_ENTRY 
+#cgo darwin CFLAGS: -x objective-c
 #cgo darwin LDFLAGS: -framework AppKit -lobjc
 #cgo linux CFLAGS: -I/usr/X11R6/include
 #cgo linux LDFLAGS: -L/usr/X11R6/lib -lGL -lX11 -lXcursor
@@ -24,7 +25,7 @@ static void run() {
 import "C"
 
 import (
-	"code.google.com/p/glcv-go/key"
+	"github.com/jacereda/glcv-go/key"
 	"runtime"
 	"unsafe"
 )

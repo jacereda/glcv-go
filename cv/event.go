@@ -7,7 +7,7 @@ package cv
 import "C"
 
 import (
-	"code.google.com/p/glcv-go/key"
+	"github.com/jacereda/glcv-go/key"
 )
 
 type Event C.ev

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"code.google.com/p/glcv-go/canvas"
-	"code.google.com/p/glcv-go/key"
+	"github.com/jacereda/glcv-go/canvas"
+	"github.com/jacereda/glcv-go/key"
 	gl "github.com/chsc/gogl/gl21"
 	"log"
 	"time"

@@ -7,8 +7,8 @@
 package canvas
 
 import (
-	"code.google.com/p/glcv-go/cv"
-	"code.google.com/p/glcv-go/key"
+	"github.com/jacereda/glcv-go/cv"
+	"github.com/jacereda/glcv-go/key"
 )
 
 type Responder interface {
